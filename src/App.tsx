@@ -33,6 +33,8 @@ import TestDispatcherFormPage from "./pages/TestDispatcherFormPage";
 import CaseExecutionListPage from "./pages/CaseExecutionListPage";
 import ComponentExecutionListPage from "./pages/ComponentExecutionListPage";
 
+import FailureAnalysisPage from "./pages/FailureAnalysisPage";
+
 /* ================= Wrapper ================= */
 
 const CaseEditWrapper = () => {
@@ -216,6 +218,17 @@ function Layout() {
           Component Execution
         </div>
 
+        {/* ANALYSIS */}
+        <div className="sidebar-group-title">Analysis</div>
+
+        <div
+          className={`sidebar-item ${isActive("/failure-analysis") ? "active" : ""}`}
+          onClick={() => nav("/failure-analysis")}
+        >
+          Failure Analysis
+        </div>
+
+
         {/* TEMPLATE */}
         <div className="sidebar-group-title">Template Layer</div>
 
@@ -273,7 +286,7 @@ function Layout() {
           {/* PLAN RUN */}
           <Route path="/plan-runs" element={<PlanRunListPage />} />
 
-          {/* ⭐ Execution Detail */}
+          {/* Execution Detail */}
           <Route path="/execution-detail" element={<BatchDetailPage />} />
           <Route path="/execution-detail/:id" element={<BatchWrapper />} />
 
@@ -288,6 +301,9 @@ function Layout() {
             path="/component-execution/:id"
             element={<ComponentExecutionWrapper />}
           />
+
+          {/* ANALYSIS */}
+          <Route path="/failure-analysis" element={<FailureAnalysisPage />} />
 
           {/* TEMPLATE */}
           <Route path="/template" element={<TemplateListPage />} />

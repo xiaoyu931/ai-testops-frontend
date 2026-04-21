@@ -306,3 +306,159 @@ body {
 }
 
 
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.summary-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.summary-card-label {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+.summary-card-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.summary-card-value.success {
+  color: #16a34a;
+}
+
+.summary-card-value.failure {
+  color: #dc2626;
+}
+
+.analysis-two-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+@media (max-width: 1200px) {
+  .summary-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .analysis-two-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Pattern Insight Card ===== */
+.pattern-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pattern-card {
+  border: 1px solid #edf1f5;
+  border-radius: 10px;
+  padding: 14px 16px;
+  background: #fafbfd;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  transition: all 0.2s ease;
+}
+
+.pattern-card:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.pattern-left {
+  max-width: 80%;
+}
+
+.pattern-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.pattern-suggestion {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.pattern-count {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+/* ===== Error Highlight ===== */
+.tag-high {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.tag-medium {
+  color: #f59e0b;
+}
+
+.tag-low {
+  color: #6b7280;
+}
+
+
+
+/* ===== Failure Detail Improve ===== */
+.error-reason {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.error-suggestion {
+  white-space: pre-line;
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.error-summary {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+
+.summary-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.summary-card::after {
+  content: "";
+  position: absolute;
+  right: -20px;
+  top: -20px;
+  width: 80px;
+  height: 80px;
+  background: rgba(37, 99, 235, 0.08);
+  border-radius: 50%;
+}

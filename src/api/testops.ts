@@ -172,8 +172,12 @@ export const testopsApi = {
 
   // ===== Case Executions =====
   getCaseExecutions: (params: any) =>
-  API.get("/case-executions", { params })
+  API.get("/case-executions", { params }),
 
+    // ===== Failure Analysis =====
+  getFailureAnalysis(params: any) {
+    return API.get("/failure-analysis", { params });
+  }
 
   
 };
