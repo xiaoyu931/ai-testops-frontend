@@ -278,6 +278,7 @@ function Layout() {
       </div>
 
       <div className="layout-main">
+        <div className="layout-content">
         <Routes>
 
           {/* CASE */}
@@ -341,6 +342,7 @@ function Layout() {
           <Route path="/mapping/edit/:id" element={<MappingEditWrapper />} />
 
         </Routes>
+        </div>
       </div>
     </div>
   );
