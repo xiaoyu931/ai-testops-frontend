@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { testopsApi } from "../api/testops";
 
 type SearchForm = {
@@ -81,13 +82,24 @@ function getErrorTypeColor(errorType: string) {
       return "#13c2c2";
     case "SCRIPT_CAPTURE_ERROR":
       return "#cf1322";
+    case "CODE_ERROR":
+      return "#595959";
     default:
       return "#666";
   }
 }
 
 export default function FailureAnalysisPage() {
-  const [searchForm, setSearchForm] = useState<SearchForm>(initialSearchForm);
+  const [searchParams] = useSearchParams();
+
+  const batchIdFromUrl = searchParams.get("batch_id") || "";
+  const planNameFromUrl = searchParams.get("plan_name") || "";
+  const issueFromUrl = searchParams.get("issue") || "";
+
+  const [searchForm, setSearchForm] = useState<SearchForm>({
+    ...initialSearchForm,
+    batch_id: batchIdFromUrl
+  });
 
   const [summary, setSummary] = useState<Summary>(emptySummary);
   const [stageDistribution, setStageDistribution] = useState<StageItem[]>([]);
@@ -96,7 +108,7 @@ export default function FailureAnalysisPage() {
   const [topIssue, setTopIssue] = useState<PatternItem | null>(null);
   const [failureDetails, setFailureDetails] = useState<FailureDetail[]>([]);
 
-  const [selectedPattern, setSelectedPattern] = useState<string | null>(null);
+  const [selectedPattern, setSelectedPattern] = useState<string | null>(issueFromUrl || null);
   const [loading, setLoading] = useState(false);
 
   const loadData = async (currentSearch = searchForm) => {
@@ -118,7 +130,10 @@ export default function FailureAnalysisPage() {
       setPatternDistribution(data.error_pattern_distribution || []);
       setTopIssue(data.top_issue || null);
       setFailureDetails(data.failure_details || []);
-      setSelectedPattern(null);
+
+      if (!issueFromUrl) {
+        setSelectedPattern(null);
+      }
     } catch (e: any) {
       console.error("Load failure analysis error:", e);
       alert(e?.response?.data?.detail || "Failed to load failure analysis");
@@ -126,6 +141,38 @@ export default function FailureAnalysisPage() {
       setLoading(false);
     }
   };
+
+  // 进入页面时，如果 URL 里有 batch_id，则自动查询
+  useEffect(() => {
+    const nextSearchForm: SearchForm = {
+      ...initialSearchForm,
+      batch_id: batchIdFromUrl
+    };
+
+    setSearchForm(nextSearchForm);
+
+    if (batchIdFromUrl) {
+      loadData(nextSearchForm);
+    }
+  }, [batchIdFromUrl]);
+
+  // 如果 URL 里带了 issue，等 patternDistribution 加载出来后自动匹配选中
+  useEffect(() => {
+    if (!issueFromUrl || patternDistribution.length === 0) return;
+
+    const target = patternDistribution.find((item) => {
+      return (
+        item.pattern === issueFromUrl ||
+        item.title === issueFromUrl ||
+        item.pattern.toLowerCase() === issueFromUrl.toLowerCase() ||
+        item.title.toLowerCase() === issueFromUrl.toLowerCase()
+      );
+    });
+
+    if (target) {
+      setSelectedPattern(target.pattern);
+    }
+  }, [issueFromUrl, patternDistribution]);
 
   const handleSearch = async () => {
     await loadData(searchForm);
@@ -153,7 +200,10 @@ export default function FailureAnalysisPage() {
 
   return (
     <div className="page-container">
-      <div className="page-title">Failure Analysis</div>
+      <div className="page-title">
+        Failure Analysis
+        {planNameFromUrl ? ` - ${planNameFromUrl}` : ""}
+      </div>
 
       <div className="search-card">
         <div className="search-card-title">Search Condition</div>
@@ -381,48 +431,46 @@ export default function FailureAnalysisPage() {
           <div className="empty-row">No Data</div>
         ) : (
           <div className="pattern-list">
-          {patternDistribution.map((item) => {
-            const selected = selectedPattern === item.pattern;
+            {patternDistribution.map((item) => {
+              const selected = selectedPattern === item.pattern;
 
-            return (
-              <div
-                key={item.pattern}
-                className="pattern-card"
-                onClick={() =>
-                  setSelectedPattern(selected ? null : item.pattern)
-                }
-                style={{
-                  cursor: "pointer",
-                  background: selected ? "#e6f4ff" : undefined,
-                  border: selected ? "1px solid #91caff" : undefined
-                }}
-                title="Click to filter failure details"
-              >
-                {/* 左侧 */}
-                <div className="pattern-left">
-                  <div className="pattern-title">
-                    {item.title}
+              return (
+                <div
+                  key={item.pattern}
+                  className="pattern-card"
+                  onClick={() =>
+                    setSelectedPattern(selected ? null : item.pattern)
+                  }
+                  style={{
+                    cursor: "pointer",
+                    background: selected ? "#e6f4ff" : undefined,
+                    border: selected ? "1px solid #91caff" : undefined
+                  }}
+                  title="Click to filter failure details"
+                >
+                  <div className="pattern-left">
+                    <div className="pattern-title">
+                      {item.title}
+                    </div>
+
+                    <div className="pattern-suggestion">
+                      {item.suggestion}
+                    </div>
                   </div>
 
-                  <div className="pattern-suggestion">
-                    {item.suggestion}
+                  <div style={{ textAlign: "right" }}>
+                    <div className="pattern-count">
+                      {item.count}
+                    </div>
+
+                    <div style={{ fontSize: 12, color: "#888" }}>
+                      {item.percent}%
+                    </div>
                   </div>
                 </div>
-
-                {/* 右侧 */}
-                <div style={{ textAlign: "right" }}>
-                  <div className="pattern-count">
-                    {item.count}
-                  </div>
-
-                  <div style={{ fontSize: 12, color: "#888" }}>
-                    {item.percent}%
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
         )}
       </div>
 
@@ -518,7 +566,8 @@ export default function FailureAnalysisPage() {
                   <td>{row.component_name || "Not Triggered"}</td>
 
                   <td
-                    className="error-summary" title={row.error_summary || ""}
+                    className="error-summary"
+                    title={row.error_summary || ""}
                     style={{
                       maxWidth: 360,
                       whiteSpace: "normal",

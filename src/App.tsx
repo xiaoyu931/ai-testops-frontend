@@ -34,6 +34,7 @@ import CaseExecutionListPage from "./pages/CaseExecutionListPage";
 import ComponentExecutionListPage from "./pages/ComponentExecutionListPage";
 
 import FailureAnalysisPage from "./pages/FailureAnalysisPage";
+import TestPlanHealthPage from "./pages/TestPlanHealthPage";
 
 /* ================= Wrapper ================= */
 
@@ -227,6 +228,14 @@ function Layout() {
         >
           Failure Analysis
         </div>
+        <div
+          className={`sidebar-item ${
+            isActive("/test-plan-health") ? "active" : ""
+          }`}
+          onClick={() => nav("/test-plan-health")}
+        >
+          Test Plan Health
+        </div>
 
 
         {/* TEMPLATE */}
@@ -304,6 +313,7 @@ function Layout() {
 
           {/* ANALYSIS */}
           <Route path="/failure-analysis" element={<FailureAnalysisPage />} />
+          <Route path="/test-plan-health" element={<TestPlanHealthPage />} />
 
           {/* TEMPLATE */}
           <Route path="/template" element={<TemplateListPage />} />

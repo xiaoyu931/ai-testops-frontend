@@ -289,6 +289,16 @@ export default function PlanRunListPage({ onView }: Props) {
                       >
                         View Detail
                       </button>
+
+                      <button
+                        className="btn btn-link"
+                        style={{ color: "#f59e0b" }}
+                        onClick={() =>
+                          nav(`/failure-analysis?batch_id=${row.batch_id}&plan_name=${encodeURIComponent(row.batch_name || "")}`)
+                        }
+                      >
+                        Failure Analysis
+                      </button>
                     </div>
                   </td>
                 </tr>
