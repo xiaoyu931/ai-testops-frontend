@@ -110,10 +110,24 @@ export default function TestPlanHealthPage() {
 
   const filterPlans = (plans: PlanItem[]) => {
     return plans.filter((p) => {
+      const kw = keyword.toLowerCase().trim();
+
       const matchKeyword =
-        !keyword ||
-        p.plan_name.toLowerCase().includes(keyword.toLowerCase()) ||
-        (p.top_issue || "").toLowerCase().includes(keyword.toLowerCase());
+        !kw ||
+
+        // Plan 名匹配
+        p.plan_name.toLowerCase().includes(kw) ||
+
+        // top_issue 直接匹配
+        (p.top_issue || "").toLowerCase().includes(kw) ||
+
+        // ⭐ 反向匹配（很关键）
+        kw.includes((p.top_issue || "").toLowerCase()) ||
+
+        // ⭐ 拆词匹配（解决 Billing Account / HeadTable 这种）
+        kw.split(" ").some((k) =>
+          (p.top_issue || "").toLowerCase().includes(k)
+        );
 
       const matchRisk = riskFilter === "ALL" || p.risk_level === riskFilter;
       const matchTrend = trendFilter === "ALL" || p.trend === trendFilter;
@@ -353,7 +367,7 @@ export default function TestPlanHealthPage() {
         </div>
 
         {!showOther ? (
-          <div className="empty-row">Hidden. Expand to view grouped other plans.</div>
+          <div className="empty-row">Other plans are grouped and collapsed. Click to expand.</div>
         ) : filteredOtherPlans.length === 0 ? (
           <div className="empty-row">No Data</div>
         ) : (
@@ -430,13 +444,25 @@ export default function TestPlanHealthPage() {
               <div
                 key={`root-${idx}`}
                 className="pattern-card"
-                onClick={() => goFailure(undefined, undefined, r.pattern)}
+                onClick={() => {
+                  // const keyword = r.pattern
+                  //   .toLowerCase()
+                  //   .replace("selector:", "")
+                  //   .replace("sap api:", "")
+                  //   .replace(/[_:]/g, " ")
+                  //   .trim();
+
+                  // setKeyword(keyword);
+                  // setKeywordInput(keyword); // ⭐ 同步输入框（很重要）
+                  // setShowOther(true);
+                  // window.scrollTo({ top: 300, behavior: "smooth" });
+                }}
               >
                 <div className="pattern-left">
                   <div className="pattern-title">{r.pattern}</div>
-                  <div className="pattern-suggestion">
-                    Click to view failure details
-                  </div>
+                  {/* <div className="pattern-suggestion">
+                    Click to filter related plans
+                  </div> */}
                 </div>
 
                 <div className="pattern-count">{r.count}</div>
